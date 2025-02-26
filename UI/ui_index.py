@@ -360,6 +360,47 @@ class Ui_MainWindow(object):
 "border-radius : 10px;\n"
 "padding-top : 3px;\n"
 "padding-left : 5px;")
+        
+        # Second image upload field
+        self.image_text_edit_2 = QPlainTextEdit(self.page_3)
+        self.image_text_edit_2.setObjectName(u"image_text_edit_2")
+        self.image_text_edit_2.setGeometry(QRect(10, 240, 381, 31))
+        self.image_text_edit_2.setStyleSheet(u"background-color : black;\n"
+"color : white;\n"
+"border-radius : 10px;\n"
+"padding-top : 3px;\n"
+"padding-left : 5px;")
+        
+        # Second image upload button
+        self.load_image_btn_2 = QPushButton(self.page_3)
+        self.load_image_btn_2.setObjectName(u"load_image_btn_2")
+        self.load_image_btn_2.setGeometry(QRect(430, 240, 111, 31))
+        self.load_image_btn_2.setStyleSheet(u"background-color : black;\n"
+"color : white;\n"
+"border-radius : 10px;")
+        self.load_image_btn_2.setCheckable(True)
+        self.load_image_btn_2.setAutoExclusive(True)
+        
+        # Third image upload field
+        self.image_text_edit_3 = QPlainTextEdit(self.page_3)
+        self.image_text_edit_3.setObjectName(u"image_text_edit_3")
+        self.image_text_edit_3.setGeometry(QRect(10, 280, 381, 31))
+        self.image_text_edit_3.setStyleSheet(u"background-color : black;\n"
+"color : white;\n"
+"border-radius : 10px;\n"
+"padding-top : 3px;\n"
+"padding-left : 5px;")
+        
+        # Third image upload button
+        self.load_image_btn_3 = QPushButton(self.page_3)
+        self.load_image_btn_3.setObjectName(u"load_image_btn_3")
+        self.load_image_btn_3.setGeometry(QRect(430, 280, 111, 31))
+        self.load_image_btn_3.setStyleSheet(u"background-color : black;\n"
+"color : white;\n"
+"border-radius : 10px;")
+        self.load_image_btn_3.setCheckable(True)
+        self.load_image_btn_3.setAutoExclusive(True)
+        
         self.create_sample_csv_button = QPushButton(self.page_3)
         self.create_sample_csv_button.setObjectName(u"create_sample_csv_button")
         self.create_sample_csv_button.setGeometry(QRect(10, 70, 131, 31))
@@ -534,7 +575,9 @@ class Ui_MainWindow(object):
         self.file_attachment_accept_value.setPlainText("")
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"File_attachment", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Mange Files", None))
-        self.load_image_btn.setText(QCoreApplication.translate("MainWindow", u"Load Image", None))
+        self.load_image_btn.setText(QCoreApplication.translate("MainWindow", u"Load Image 1", None))
+        self.load_image_btn_2.setText(QCoreApplication.translate("MainWindow", u"Load Image 2", None))
+        self.load_image_btn_3.setText(QCoreApplication.translate("MainWindow", u"Load Image 3", None))
         self.load_csv_btn.setText(QCoreApplication.translate("MainWindow", u"Load Excel", None))
         self.excel_text_edit.setPlainText("")
         self.create_sample_csv_button.setText(QCoreApplication.translate("MainWindow", u"Create Sample CSV", None))

@@ -9,6 +9,7 @@ from helper import ChromeLauncher
 from time import sleep
 import pandas
 import urllib
+import sys
 from .message_type import Message
 from .ui_helper import MessageDialog,DialogBox
 from .contact_numbers import ContactNumber
@@ -30,6 +31,8 @@ class Whatsapp():
         self.current_message_selection = None
         self.csv_path =  None
         self.image_path = None
+        self.image_path_2 = None
+        self.image_path_3 = None
         self.dialogBox_instance = DialogBox()
         self.wait_time = self.window_instance.config_instance.wait_time_spin_box
         self.button_locator_instance = Locators()
@@ -42,19 +45,76 @@ class Whatsapp():
             print(*args)
 
     def open_whatsapp(self):
-        if self.window_instance.config_instance.single_instance == "True":
-            self.printf('single Instance is on')
-            # @Experimental
-            # ChromeLauncher.launch_chrome()
-            # Set up Chrome options to connect to the debugging port
-            chrome_options = Options()
-            chrome_options.debugger_address = "localhost:9222"
-            # Initialize the driver without starting a new browser instance
-            self.driver = webdriver.Chrome(service=Service(), options=chrome_options)
-        else:
-            self.driver = webdriver.Chrome()
-        self.driver.get('https://web.whatsapp.com')
-        self.is_driver_available = True
+        try:
+            import time
+            import subprocess
+            import os
+            
+            print("Opening WhatsApp...")
+            self.printf("System info - Python version:")
+            self.printf(sys.version)
+            
+            # Use a direct approach - let's try with specifically installed chromedriver
+            if self.window_instance.config_instance.single_instance == "True":
+                self.printf('single Instance is on')
+                
+                try:
+                    # Direct Chrome approach
+                    chrome_options = Options()
+                    chrome_options.debugger_address = "localhost:9222"
+                    self.driver = webdriver.Chrome(options=chrome_options)
+                except Exception as browser_error:
+                    self.printf(f"Debug - Chrome debug port error: {browser_error}")
+                    # Fall back to standard approach
+                    chrome_options = Options()
+                    self.driver = webdriver.Chrome(options=chrome_options)
+            else:
+                print("Creating Chrome driver instance using simplified approach...")
+                
+                # Create minimal Chrome options for fastest startup
+                chrome_options = Options()
+                
+                # Try to initialize using direct instantiation
+                try:
+                    print("Attempting direct Chrome instantiation...")
+                    self.driver = webdriver.Chrome(options=chrome_options)
+                    print("Direct instantiation succeeded!")
+                except Exception as e1:
+                    print(f"Direct instantiation failed: {e1}")
+                    
+                    # Try using straight system browser
+                    try:
+                        print("Trying system browser approach...")
+                        self.driver = webdriver.Chrome()
+                        print("System browser approach worked!")
+                    except Exception as e2:
+                        print(f"System browser failed: {e2}")
+                        
+                        # Try direct approach with ChromeDriverManager
+                        try:
+                            print("Trying ChromeDriverManager approach...")
+                            from webdriver_manager.chrome import ChromeDriverManager
+                            service = Service(ChromeDriverManager().install())
+                            self.driver = webdriver.Chrome(service=service)
+                            print("ChromeDriverManager approach worked!")
+                        except Exception as e3:
+                            print(f"ChromeDriverManager failed: {e3}")
+                            
+                            # Last resort - try to inform user how to proceed
+                            err_msg = f"All Chrome initialization methods failed. Please try: \n1. Install Chrome browser\n2. Close any running Chrome instances\n3. Try again"
+                            print(err_msg)
+                            raise Exception(err_msg)
+            
+            # Set a shorter page load timeout
+            self.driver.set_page_load_timeout(30)
+            
+            print("Navigating to WhatsApp Web...")
+            self.driver.get('https://web.whatsapp.com')
+            print("Navigation successful")
+            self.is_driver_available = True
+        except Exception as e:
+            print(f"Error opening WhatsApp: {str(e)}")
+            self.show_error_dialog_box(f"Error opening WhatsApp: {str(e)}")
 
 
     def do_scan_QR_code(self):
@@ -63,7 +123,12 @@ class Whatsapp():
             dialog.exec()  # Show the dialog
     
     def open_contact(self,number,message):
-        url = 'https://web.whatsapp.com/send?phone=' + str(number) + '&text=' + urllib.parse.quote(message)
+        # Convert number to integer and format as string
+        number_str = str(int(number))
+        # Handle NaN messages and convert to empty string
+        message_str = str(message) if not pd.isna(message) else ''
+        # Properly URL-encode the message
+        url = 'https://web.whatsapp.com/send?phone=' + number_str + '&text=' + urllib.parse.quote(message_str)
         self.driver.get(url)
         self.printf(f'Opening {url}')
     
@@ -96,8 +161,8 @@ class Whatsapp():
         return True
         
     def check_image_path_available(self):
-        if not self.image_path:
-            DialogBox().show_confirmation_dialog("image file is not available Please select the fie first.")
+        if not self.image_path and not self.image_path_2 and not self.image_path_3:
+            DialogBox().show_confirmation_dialog("No image file is available. Please select at least one image file first.")
             return False
         return True
     
@@ -260,9 +325,51 @@ class Whatsapp():
                     except Exception as e:
                         print("cannot find attachment uploading button")
                     else:
-                        button.send_keys(self.image_path)
-                        sleep(int(self.window_instance.config_instance.sleep_time_spin_box))
-                        # send_button_value = f"//*[@data-icon='send']"
-                        send_button = self.button_locator_instance.x_path_locator(self.driver,self.wait_time,self.window_instance.config_instance.send_button_value)
-                        send_button.click()
-                        sleep(int(self.window_instance.config_instance.upload_time_spin_box))
+                        # Send first image
+                        if self.image_path:
+                            button.send_keys(self.image_path)
+                            sleep(int(self.window_instance.config_instance.sleep_time_spin_box))
+                            # send_button_value = f"//*[@data-icon='send']"
+                            send_button = self.button_locator_instance.x_path_locator(self.driver,self.wait_time,self.window_instance.config_instance.send_button_value)
+                            send_button.click()
+                            sleep(int(self.window_instance.config_instance.upload_time_spin_box))
+                        
+                        # Send second image if available
+                        if self.image_path_2:
+                            try:
+                                # Click attachment button again for the second image
+                                attachment_button = self.button_locator_instance.x_path_locator(self.driver,self.wait_time,self.window_instance.config_instance.attachment_button_val)
+                                sleep(int(self.window_instance.config_instance.sleep_time_spin_box))
+                                attachment_button.click()
+                                
+                                # Get file input for second image
+                                button = self.button_locator_instance.find_element_by_attributes(self.driver,self.wait_time,self.window_instance.config_instance.image_attachment_accept_value)
+                                button.send_keys(self.image_path_2)
+                                sleep(int(self.window_instance.config_instance.sleep_time_spin_box))
+                                
+                                # Click send button
+                                send_button = self.button_locator_instance.x_path_locator(self.driver,self.wait_time,self.window_instance.config_instance.send_button_value)
+                                send_button.click()
+                                sleep(int(self.window_instance.config_instance.upload_time_spin_box))
+                            except Exception as e:
+                                self.printf(f"Error sending second image: {e}")
+                        
+                        # Send third image if available
+                        if self.image_path_3:
+                            try:
+                                # Click attachment button again for the third image
+                                attachment_button = self.button_locator_instance.x_path_locator(self.driver,self.wait_time,self.window_instance.config_instance.attachment_button_val)
+                                sleep(int(self.window_instance.config_instance.sleep_time_spin_box))
+                                attachment_button.click()
+                                
+                                # Get file input for third image
+                                button = self.button_locator_instance.find_element_by_attributes(self.driver,self.wait_time,self.window_instance.config_instance.image_attachment_accept_value)
+                                button.send_keys(self.image_path_3)
+                                sleep(int(self.window_instance.config_instance.sleep_time_spin_box))
+                                
+                                # Click send button
+                                send_button = self.button_locator_instance.x_path_locator(self.driver,self.wait_time,self.window_instance.config_instance.send_button_value)
+                                send_button.click()
+                                sleep(int(self.window_instance.config_instance.upload_time_spin_box))
+                            except Exception as e:
+                                self.printf(f"Error sending third image: {e}")

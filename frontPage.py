@@ -51,7 +51,9 @@ class MySideBar(QMainWindow,Ui_MainWindow):
 
         self.load_csv_btn.setCheckable(True)
         self.load_csv_btn.clicked.connect(self.handle_load_csv_button)
-        self.load_image_btn.clicked.connect(self.handle_load_image_button)
+        self.load_image_btn.clicked.connect(lambda: self.handle_load_image_button(1))
+        self.load_image_btn_2.clicked.connect(lambda: self.handle_load_image_button(2))
+        self.load_image_btn_3.clicked.connect(lambda: self.handle_load_image_button(3))
         self.save_custom_message_button.clicked.connect(self.handle_save_message_button)
         # self.save_button.clicked.connect(self.whatsapp_instance.send_messages)
 
@@ -100,10 +102,20 @@ class MySideBar(QMainWindow,Ui_MainWindow):
         self.whatsapp_instance.csv_path = str(file_name[0])
         # print(file_name)
 
-    def handle_load_image_button(self):
+    def handle_load_image_button(self, image_num=1):
         file_name = self.dialogBox_instance.show_dialog_box()
-        self.image_text_edit.setPlainText(str(file_name[0]))
-        self.whatsapp_instance.image_path = str(file_name[0])
+        if not file_name:
+            return
+            
+        if image_num == 1:
+            self.image_text_edit.setPlainText(str(file_name[0]))
+            self.whatsapp_instance.image_path = str(file_name[0])
+        elif image_num == 2:
+            self.image_text_edit_2.setPlainText(str(file_name[0]))
+            self.whatsapp_instance.image_path_2 = str(file_name[0])
+        elif image_num == 3:
+            self.image_text_edit_3.setPlainText(str(file_name[0]))
+            self.whatsapp_instance.image_path_3 = str(file_name[0])
         # print(file_name)
         
     def handle_save_message_button(self):
@@ -115,6 +127,8 @@ class MySideBar(QMainWindow,Ui_MainWindow):
         self.stackedWidget.setCurrentIndex(index)
     
     def handle_whatsapp_page_button(self):
+        # Show a message to the user before starting the process
+        self.dialogBox_instance.show_confirmation_dialog("Starting WhatsApp... This may take a moment, please wait.")
         self.whatsapp_instance.open_whatsapp()
 
     def openDialog(self):
