@@ -1,6 +1,6 @@
 # WhatsApp-Automation-Bulk-Messages-Sender
 
-This project helps to send whatsapp messages without saving contact numbers. Simply put contact numbers into CSV file, then run this scripts accordingly to your need.
+Updated code supporting 3 file uploads and lot of bug fixes . This project helps to send whatsapp messages without saving contact numbers. Simply put contact numbers into CSV file, then run this scripts accordingly to your need.
 
 ### Supporting Documentation
 
